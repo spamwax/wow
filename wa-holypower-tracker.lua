@@ -59,12 +59,16 @@ function(allstates, event, arg1, arg2, arg3, arg4)
         unit = arg1
         local cost = GetSpellPowerCost("Word of Glory")
         if cost ~= nil then
-          powerType = Enum.PowerType.HolyPower -- Only holy paladin has Divine Purpose
-          
+          powerType = Enum.PowerType.HolyPower -- Only holy paladin has Divine Purpose/Shining Righteousness
           if cost[1].minCost == 0 then
             if not aura_env.divine_purpose_detected then
               aura_env.divine_purpose_detected = true
+              aura_env.divine_purpose_duration = 12
               aura_env.divine_purpose_expirationTime = 12 + GetTime()
+              if WA_GetUnitBuff("player", 414445) then -- Change duration for Shining Righteousness buff
+                aura_env.divine_purpose_duration = 30
+                aura_env.divine_purpose_expirationTime = 30 + GetTime()
+              end
             end
           else
             aura_env.divine_purpose_detected = false
@@ -76,8 +80,10 @@ function(allstates, event, arg1, arg2, arg3, arg4)
     
     
     --[[
-        -- Bestow Faith cast success event
+        -- Bestow Faith cast success event 
+        BESTOW FAITH WAS REMOVED IN 10.2.7
         ]]
+    --[[
     if event == "UNIT_SPELLCAST_SUCCEEDED" then
       if arg1 and arg3 and arg1 == "player" and arg3 == 223306 then -- (Besto Faith)
         unit = arg1
@@ -101,9 +107,10 @@ function(allstates, event, arg1, arg2, arg3, arg4)
         }
       end    
     end
+    --]]
     
     --[[
-        -- Holy paladin casting Holy Light or Flash of Light on a beaconed target or having Infusion of Light Buff
+        -- Holy paladin casting Holy Light with Tower of Radiance or having Infusion of Light Buff
         ]]
     if event == "UNIT_SPELLCAST_SENT" then
       if arg1 and arg2 and arg4 and arg1 == "player" and (arg4 == 19750 --[[Flash of Light]] or arg4 == 82326 --[[Holy Light]]) then
@@ -112,21 +119,15 @@ function(allstates, event, arg1, arg2, arg3, arg4)
         
         local _spell, _, _, castTime, _, _ = GetSpellInfo(spellID)
         aura_env.finishTime = castTime/1000
-        -- In Patch 9.1, casting Holy Light while under Infusion of light will give 1 holy power
-        -- Check if player has Infusion of Light (54149) and is casting Holy Light
-        --[[
-                AuraUtil.ForEachAura("player", "HELPFUL", nil, function(name, icon, _, _, _, _, _, _, _, spellId, ...)
-                        if spellId == 54149 then
-                            print("Yes!!!", name)
-                            return true
-                        else
-                            print("No :(", name, spellId)
-                            return false
-                        end
-                end)
-                ]]
-        if (spellID == 82326 or spellID == 19750) and WA_GetUnitBuff("player", 54149) then -- 54149 Infusion of Light
+        if (spellID == 82326) and WA_GetUnitBuff("player", 54149) then -- 54149 Infusion of Light
+          -- Holy Light creates 2 Holy Power under Infusion of Light
           allstates["INFUSION"] = {
+            show = true,
+            changed = true,
+            name = _spell,
+            autoHide = true,
+          }
+          allstates["INFUSION2"] = {
             show = true,
             changed = true,
             name = _spell,
@@ -136,10 +137,18 @@ function(allstates, event, arg1, arg2, arg3, arg4)
             allstates["INFUSION"].progressType = "timed"
             allstates["INFUSION"].duration = aura_env.finishTime -- for "timed"
             allstates["INFUSION"].expirationTime = aura_env.finishTime + GetTime() -- for "timed"
+            -- 
+            allstates["INFUSION2"].progressType = "timed"
+            allstates["INFUSION2"].duration = aura_env.finishTime -- for "timed"
+            allstates["INFUSION2"].expirationTime = aura_env.finishTime + GetTime() -- for "timed"
           else
             allstates["INFUSION"].progressType = "static"
             allstates["INFUSION"].total = 1
             allstates["INFUSION"].value = 1
+            --
+            allstates["INFUSION2"].progressType = "static"
+            allstates["INFUSION2"].total = 1
+            allstates["INFUSION2"].value = 1
           end
           aura_env.casting = true
           unit = arg1;
@@ -147,44 +156,30 @@ function(allstates, event, arg1, arg2, arg3, arg4)
           power = UnitPower(unit, powerType)
         end
          
-        local found_beaconed = false
         local hasTowerOfRadiance = IsPlayerSpell(231642)
-        -- print("hasTower", hasTowerOfRadiance)
+        -- Casting FoL or Holy Light generates a holy power when Tower of Radiance talent is selected
         if hasTowerOfRadiance then
-          for _, v in ipairs({53563, 156910, 200025}) do -- Beacon of Light, Beacon of Faith, Beacon of Virtue
-            -- print("checking", v)
-            if not found_beaconed then
-              beacon_name, _, _, _, _, _, source, _, _, buffSpellID = WA_GetUnitBuff(target, v)
-              if beacon_name and source == "player" and buffSpellID then
-                -- print("beacon_name", beacon_name)
-                aura_env.casting = true
-                --local _s = string.format("Casting %s (%d) on %s who has %s with ID %d from %s", _spell, spellID, target, beacon_name, buffSpellID, source)
-                allstates["CASTING"] = {
-                  show = true,
-                  changed = true,
-                  name = _spell,
-                  autoHide = true,
-                }
-                if aura_env.config.hpaly["show_casting"] == true then
-                  allstates["CASTING"].progressType = "timed"
-                  allstates["CASTING"].duration = aura_env.finishTime -- for "timed"
-                  allstates["CASTING"].expirationTime = aura_env.finishTime + GetTime() -- for "timed"
-                else
-                  allstates["CASTING"].progressType = "static"
-                  allstates["CASTING"].total = 1
-                  allstates["CASTING"].value = 1
-                end
-                unit = arg1;
-                powerType = Enum.PowerType.HolyPower -- Only holy paladin can cast this
-                power = UnitPower(unit, powerType)
-                found_beaconed = true
-              end
-            else
-              -- print("found",found_beaconed)
-              break
-            end
+          aura_env.casting = true
+          allstates["CASTING"] = {
+            show = true,
+            changed = true,
+            name = _spell,
+            autoHide = true,
+          }
+          if aura_env.config.hpaly["show_casting"] == true then
+            allstates["CASTING"].progressType = "timed"
+            allstates["CASTING"].duration = aura_env.finishTime -- for "timed"
+            allstates["CASTING"].expirationTime = aura_env.finishTime + GetTime() -- for "timed"
+          else
+            allstates["CASTING"].progressType = "static"
+            allstates["CASTING"].total = 1
+            allstates["CASTING"].value = 1
           end
+          unit = arg1;
+          powerType = Enum.PowerType.HolyPower -- Only holy paladin can cast this
+          power = UnitPower(unit, powerType)
         end
+        -- print("hasTower", hasTowerOfRadiance)
       else
         return
       end
@@ -218,6 +213,12 @@ function(allstates, event, arg1, arg2, arg3, arg4)
             show = false,
           }
         end
+        if allstates["INFUSION2"] then
+          allstates["INFUSION2"] = {
+            changed = true,
+            show = false,
+          }
+        end
       else
         return
       end
@@ -246,7 +247,7 @@ function(allstates, event, arg1, arg2, arg3, arg4)
   
   
   --[[
-    -- Show orbs based on 'power' value and adjust update Bestow Faith and cast clones if they are visible
+    -- Show orbs based on 'power' value and adjust the special orbs and cast clones if they are visible
     ]]
   if unit == "player" then -- quick nil check
     if powerType == -1 then return end -- No relevant event was received so we couldn't detect power type.
@@ -255,12 +256,6 @@ function(allstates, event, arg1, arg2, arg3, arg4)
     powerToken = aura_env.power_tokens[powerType] 
     
     local loc = power
-    if allstates["BF"] and allstates["BF"].show then
-      loc = loc + 1
-      allstates["BF"].orbs = loc;
-      allstates["BF"].loc = loc;
-      allstates["BF"].orb_type = "bestow"
-    end
     if allstates["CASTING"] and allstates["CASTING"].show then
       loc = loc + 1
       allstates["CASTING"].orbs = loc;
@@ -273,7 +268,12 @@ function(allstates, event, arg1, arg2, arg3, arg4)
       allstates["INFUSION"].loc = loc
       allstates["INFUSION"].orb_type = "casting_orb"
     end
-    
+    if allstates["INFUSION2"] and allstates["INFUSION2"].show then
+      loc = loc + 1
+      allstates["INFUSION2"].orbs = loc;
+      allstates["INFUSION2"].loc = loc;
+      allstates["INFUSION2"].orb_type = "casting_orb"
+    end
     
     if not aura_env.glows_activated then
       for i=1,total do
@@ -323,7 +323,7 @@ function(allstates, event, arg1, arg2, arg3, arg4)
             loc = loc,
             orbs = 0,
             progressType = "timed",
-            duration = 12,
+            duration = aura_env.divine_purpose_duration,
             expirationTime = aura_env.divine_purpose_expirationTime,
             name = powerToken,
             autoHide = true,
