@@ -7,7 +7,8 @@ aura_env.primaryStat, aura_env.primaryToken = 0, "Primary"
 aura_env.level = UnitLevel("player")
 aura_env.disp_order = {}
 
-local format = string.format
+aura_env.format = string.format
+local format = aura_env.format
 
 aura_env.stat_names =
   { "primary", "haste", "crit", "mastery", "vers", "block", "dodge", "leech", "speed", "armor", "avoidance", "parry" }
@@ -16,7 +17,7 @@ local firstToUpper = function(str)
   return (str:gsub("^%l", string.upper))
 end
 
-for i, s in pairs(aura_env.stat_names) do
+for _, s in pairs(aura_env.stat_names) do
   local o = aura_env.config.order[s]
   if o and type(o) == "number" and o <= 12 and o >= 1 then aura_env.disp_order[o] = s end
 end
@@ -28,7 +29,7 @@ aura_env.formatters = {}
 
 for _, value in ipairs(aura_env.raw_stat_names) do
   local r, p = aura_env.config.rawvalues[value][1], aura_env.config.rawvalues[value][2] -- index 1 is raw and 2 is percentage
-  aura_env[value .. "_disp"] = { r = r, p = p }
+  aura_env[value .. "_disp"] = { raw = r, perc = p }
   local name = firstToUpper(value)
   local is_verse = value == "vers"
   if r and p then
@@ -49,7 +50,7 @@ aura_env.calcSpeed = function()
 
   -- In The Maw, the Stolen Shadehound is not considered "mount" so this hack is added to account for speed increase
   if GetAreaText() == "The Maw" then
-    local name, _, _, _, _, _, source, _, _, buffSpellID = WA_GetUnitBuff("player", 338659)
+    local name, _, _, _, _, _, _, _, _, buffSpellID = WA_GetUnitBuff("player", 338659)
     if name ~= nil and buffSpellID ~= nil then
       stolenShadehound = 2 -- 100% speed buff
     end
@@ -95,7 +96,7 @@ aura_env.calcPrimaryStat = function()
   end
 
   if roleToken ~= nil then
-    local stat, effectiveStat, _, _ = UnitStat("player", mainStatID)
+    local _, effectiveStat, _, _ = UnitStat("player", mainStatID)
     if effectiveStat == nil then effectiveStat = 0 end
     return effectiveStat, primaryToken
   end
@@ -112,7 +113,7 @@ for _, s in pairs(aura_env.stat_names) do
 end
 
 -- HASTE
-local r, p = aura_env.haste_disp.r, aura_env.haste_disp.p
+local r, p = aura_env.haste_disp.raw, aura_env.haste_disp.perc
 aura_env["GetHaste"] = function()
   local s
   local format_str = aura_env.hasteColor .. aura_env.formatters["haste"]
@@ -126,7 +127,7 @@ aura_env["GetHaste"] = function()
   return s
 end
 -- CRIT
-local r, p = aura_env.crit_disp.r, aura_env.crit_disp.p
+local r, p = aura_env.crit_disp.raw, aura_env.crit_disp.perc
 aura_env["GetCrit"] = function()
   local s
   local format_str = aura_env.critColor .. aura_env.formatters["crit"]
@@ -140,7 +141,7 @@ aura_env["GetCrit"] = function()
   return s
 end
 -- VERS
-local r, p = aura_env.vers_disp.r, aura_env.vers_disp.p
+local r, p = aura_env.vers_disp.raw, aura_env.vers_disp.perc
 aura_env["GetVers"] = function()
   local s
   local format_str = aura_env.versColor .. aura_env.formatters["vers"]
@@ -156,7 +157,7 @@ aura_env["GetVers"] = function()
   return s
 end
 -- MASTERY
-local r, p = aura_env.mastery_disp.r, aura_env.mastery_disp.p
+local r, p = aura_env.mastery_disp.raw, aura_env.mastery_disp.perc
 aura_env["GetMastery"] = function()
   local s
   local format_str = aura_env.masteryColor .. aura_env.formatters["mastery"]
@@ -170,7 +171,7 @@ aura_env["GetMastery"] = function()
   return s
 end
 -- LEECH
-local r, p = aura_env.leech_disp.r, aura_env.leech_disp.p
+local r, p = aura_env.leech_disp.raw, aura_env.leech_disp.perc
 aura_env["GetLeech"] = function()
   local s
   local format_str = aura_env.leechColor .. aura_env.formatters["leech"]
@@ -184,7 +185,7 @@ aura_env["GetLeech"] = function()
   return s
 end
 -- AVOIDANCE
-local r, p = aura_env.avoidance_disp.r, aura_env.avoidance_disp.p
+local r, p = aura_env.avoidance_disp.raw, aura_env.avoidance_disp.perc
 aura_env["GetAvoidance"] = function()
   local s
   local format_str = aura_env.avoidanceColor .. aura_env.formatters["avoidance"]
@@ -198,7 +199,7 @@ aura_env["GetAvoidance"] = function()
   return s
 end
 -- parry
-local r, p = aura_env.parry_disp.r, aura_env.parry_disp.p
+local r, p = aura_env.parry_disp.raw, aura_env.parry_disp.perc
 aura_env["GetParry"] = function()
   local s
   local format_str = aura_env.parryColor .. aura_env.formatters["parry"]
@@ -212,7 +213,7 @@ aura_env["GetParry"] = function()
   return s
 end
 -- armor
-local r, p = aura_env.armor_disp.r, aura_env.armor_disp.p
+local r, p = aura_env.armor_disp.raw, aura_env.armor_disp.perc
 aura_env["GetArmor"] = function()
   local s, armor_perc
   local _, armor = UnitArmor("player")
