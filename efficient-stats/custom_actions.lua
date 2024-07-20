@@ -101,101 +101,15 @@ aura_env.calcPrimaryStat = function()
   end
 end
 
-aura_env.primaryColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["primary"][4] * 255,
-  aura_env.config.colors["primary"][1] * 255,
-  aura_env.config.colors["primary"][2] * 255,
-  aura_env.config.colors["primary"][3] * 255
-)
-
-aura_env.hasteColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["haste"][4] * 255,
-  aura_env.config.colors["haste"][1] * 255,
-  aura_env.config.colors["haste"][2] * 255,
-  aura_env.config.colors["haste"][3] * 255
-)
-
-aura_env.dodgeColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["dodge"][4] * 255,
-  aura_env.config.colors["dodge"][1] * 255,
-  aura_env.config.colors["dodge"][2] * 255,
-  aura_env.config.colors["dodge"][3] * 255
-)
-
-aura_env.masteryColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["mastery"][4] * 255,
-  aura_env.config.colors["mastery"][1] * 255,
-  aura_env.config.colors["mastery"][2] * 255,
-  aura_env.config.colors["mastery"][3] * 255
-)
-
-aura_env.critColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["crit"][4] * 255,
-  aura_env.config.colors["crit"][1] * 255,
-  aura_env.config.colors["crit"][2] * 255,
-  aura_env.config.colors["crit"][3] * 255
-)
-
-aura_env.versColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["versatility"][4] * 255,
-  aura_env.config.colors["versatility"][1] * 255,
-  aura_env.config.colors["versatility"][2] * 255,
-  aura_env.config.colors["versatility"][3] * 255
-)
-
-aura_env.speedColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["speed"][4] * 255,
-  aura_env.config.colors["speed"][1] * 255,
-  aura_env.config.colors["speed"][2] * 255,
-  aura_env.config.colors["speed"][3] * 255
-)
-
-aura_env.leechColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["leech"][4] * 255,
-  aura_env.config.colors["leech"][1] * 255,
-  aura_env.config.colors["leech"][2] * 255,
-  aura_env.config.colors["leech"][3] * 255
-)
-
-aura_env.blockColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["block"][4] * 255,
-  aura_env.config.colors["block"][1] * 255,
-  aura_env.config.colors["block"][2] * 255,
-  aura_env.config.colors["block"][3] * 255
-)
-
-aura_env.armorColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["armor"][4] * 255,
-  aura_env.config.colors["armor"][1] * 255,
-  aura_env.config.colors["armor"][2] * 255,
-  aura_env.config.colors["armor"][3] * 255
-)
-
-aura_env.avoidanceColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["avoidance"][4] * 255,
-  aura_env.config.colors["avoidance"][1] * 255,
-  aura_env.config.colors["avoidance"][2] * 255,
-  aura_env.config.colors["avoidance"][3] * 255
-)
-
-aura_env.parryColor = string.format(
-  "|c%.2x%.2x%.2x%.2x",
-  aura_env.config.colors["parry"][4] * 255,
-  aura_env.config.colors["parry"][1] * 255,
-  aura_env.config.colors["parry"][2] * 255,
-  aura_env.config.colors["parry"][3] * 255
-)
+for _, s in pairs(aura_env.stat_names) do
+  aura_env[s .. "Color"] = format(
+    "|c%.2x%.2x%.2x%.2x",
+    aura_env.config.colors[s][4] * 255,
+    aura_env.config.colors[s][1] * 255,
+    aura_env.config.colors[s][2] * 255,
+    aura_env.config.colors[s][3] * 255
+  )
+end
 
 -- HASTE
 local r, p = aura_env.haste_disp.r, aura_env.haste_disp.p
