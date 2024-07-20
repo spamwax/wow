@@ -40,7 +40,8 @@ function (event, unit, subEvent, hideCaster, sourceGUID, sourceName, sourceFlags
   -- local versatility = GetCombatRating(CR_VERSATILITY_DAMAGE_DONE);
   -- local versDmg = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_DONE) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_DONE);
   -- local versDR  = GetCombatRatingBonus(CR_VERSATILITY_DAMAGE_TAKEN) + GetVersatilityBonus(CR_VERSATILITY_DAMAGE_TAKEN);
-  local _, armor = UnitArmor("player")
+  -- local _, armor = UnitArmor("player")
+  
   
   -- aura_env.haste = not aura_env.config.rawvalues["haste"] and GetHaste() or GetCombatRating(CR_HASTE_MELEE); -- CR_HASTE_MELEE
   aura_env.haste = aura_env.GetHaste()
@@ -61,7 +62,7 @@ function (event, unit, subEvent, hideCaster, sourceGUID, sourceName, sourceFlags
   
   aura_env.speed = aura_env.calcSpeed()
   aura_env.block = GetBlockChance()
-  aura_env.armor = armor
+  aura_env.armor = aura_env.GetArmor()
   -- aura_env.avoidance = not aura_env.config.rawvalues["avoidance"] and GetCombatRatingBonus(CR_AVOIDANCE) or GetCombatRating(CR_AVOIDANCE) -- CR_AVOIDANCE
   aura_env.avoidance = aura_env.GetAvoidance()
   -- aura_env.parry = not aura_env.config.rawvalues["parry"] and GetParryChance() or GetCombatRating(CR_PARRY) -- CR_PARRY
@@ -70,4 +71,3 @@ function (event, unit, subEvent, hideCaster, sourceGUID, sourceName, sourceFlags
   return true
   
 end
-

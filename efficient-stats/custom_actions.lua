@@ -4,7 +4,7 @@
 aura_env.mount_delay = 0.35
 aura_env.timerActive = false
 aura_env.primaryStat, aura_env.primaryToken = 0, "Primary"
-
+aura_env.level = UnitLevel("player")
 aura_env.disp_order = {}
 
 local format = string.format
@@ -21,7 +21,7 @@ for i, s in pairs(aura_env.stat_names) do
   if o and type(o) == "number" and o <= 12 and o >= 1 then aura_env.disp_order[o] = s end
 end
 
-aura_env.raw_stat_names = { "haste", "crit", "vers", "mastery", "leech", "avoidance", "parry" }
+aura_env.raw_stat_names = { "haste", "crit", "vers", "mastery", "leech", "avoidance", "parry", "armor" }
 
 -- formatters to be used to show % and/or raw values
 aura_env.formatters = {}
@@ -294,6 +294,26 @@ aura_env["GetParry"] = function()
     s = format(format_str, GetCombatRating(CR_PARRY) or 0)
   else
     s = format(format_str, GetParryChance() or 0)
+  end
+  return s
+end
+-- armor
+local r, p = aura_env.armor_disp.r, aura_env.armor_disp.p
+aura_env["GetArmor"] = function()
+  local s, armor_perc
+  local _, armor = UnitArmor("player")
+  if UnitName("target") then
+    armor_perc = (C_PaperDollInfo.GetArmorEffectivenessAgainstTarget(armor) or 0) * 100
+  else
+    armor_perc = (C_PaperDollInfo.GetArmorEffectiveness(armor, aura_env.level) or 0) * 100
+  end
+  local format_str = aura_env.armorColor .. aura_env.formatters["armor"]
+  if r and p then
+    s = format(format_str, armor or 0, armor_perc or 0)
+  elseif r then
+    s = format(format_str, armor or 0)
+  else
+    s = format(format_str, armor_perc or 0)
   end
   return s
 end

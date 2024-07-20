@@ -22,7 +22,8 @@ function ()
   -- s.leech = string.format(aura_env.leechColor .. aura_env.formatters["leech"], aura_env.leech or 0)
   s.leech = aura_env.leech
   s.block = string.format(aura_env.blockColor .. "Block: %.2f%%", aura_env.block or 0)
-  s.armor = string.format(aura_env.armorColor .. "Armor: %d", aura_env.armor or 0)
+  -- s.armor = string.format(aura_env.armorColor .. "Armor: %d", aura_env.armor or 0)
+  s.armor = aura_env.armor
   -- s.avoidance = string.format(aura_env.avoidanceColor .. aura_env.formatters["avoidance"], aura_env.avoidance or 0)
   s.avoidance = aura_env.avoidance
   -- s.parry = string.format(aura_env.parryColor .. aura_env.formatters["parry"], aura_env.parry or 0)
