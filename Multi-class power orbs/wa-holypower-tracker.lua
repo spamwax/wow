@@ -57,7 +57,7 @@ function(allstates, event, arg1, arg2, arg3, arg4)
     if aura_env.config.hpaly["show_divine_purpose"] == true then
       if event == "UNIT_AURA" and arg1 == "player" then
         unit = arg1
-        local cost = GetSpellPowerCost("Word of Glory")
+        local cost = C_Spell.GetSpellPowerCost(85673) -- Word of Glory
         if cost ~= nil then
           powerType = Enum.PowerType.HolyPower -- Only holy paladin has Divine Purpose/Shining Righteousness
           if cost[1].minCost == 0 then
@@ -117,8 +117,12 @@ function(allstates, event, arg1, arg2, arg3, arg4)
         local target, spellID = arg2, arg4
         local beacon_name, source, buffSpellID
         
-        local _spell, _, _, castTime, _, _ = GetSpellInfo(spellID)
+        local _spell = C_Spell.GetSpellInfo(spellID).name
+        local castTime = C_Spell.GetSpellInfo(spellID).castTime
         aura_env.finishTime = castTime/1000
+        
+        -- Infusion of Light" and Holy Light does not give bonus holy power on TWW, hence commenting out the next section of code
+        --[[
         if (spellID == 82326) and WA_GetUnitBuff("player", 54149) then -- 54149 Infusion of Light
           -- Holy Light creates 2 Holy Power under Infusion of Light
           allstates["INFUSION"] = {
@@ -155,7 +159,8 @@ function(allstates, event, arg1, arg2, arg3, arg4)
           powerType = Enum.PowerType.HolyPower -- Only holy paladin can cast this
           power = UnitPower(unit, powerType)
         end
-         
+        ]]
+        
         local hasTowerOfRadiance = IsPlayerSpell(231642)
         -- Casting FoL or Holy Light generates a holy power when Tower of Radiance talent is selected
         if hasTowerOfRadiance then
@@ -207,6 +212,7 @@ function(allstates, event, arg1, arg2, arg3, arg4)
             show = false,
           }
         end
+        --[[
         if allstates["INFUSION"] then
           allstates["INFUSION"] = {
             changed = true,
@@ -219,6 +225,7 @@ function(allstates, event, arg1, arg2, arg3, arg4)
             show = false,
           }
         end
+        ]]
       else
         return
       end
@@ -262,6 +269,7 @@ function(allstates, event, arg1, arg2, arg3, arg4)
       allstates["CASTING"].loc = loc
       allstates["CASTING"].orb_type = "casting_orb"
     end
+    --[[
     if allstates["INFUSION"] and allstates["INFUSION"].show then
       loc = loc + 1
       allstates["INFUSION"].orbs = loc;
@@ -274,6 +282,7 @@ function(allstates, event, arg1, arg2, arg3, arg4)
       allstates["INFUSION2"].loc = loc;
       allstates["INFUSION2"].orb_type = "casting_orb"
     end
+    ]]
     
     if not aura_env.glows_activated then
       for i=1,total do
@@ -346,4 +355,3 @@ function(allstates, event, arg1, arg2, arg3, arg4)
     return true
   end
 end
-
